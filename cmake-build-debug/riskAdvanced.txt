@@ -1,0 +1,20 @@
+Global Recovery: Everyone Collects $;money;-1;50
+Performance Bonus:;assets;5;10
+Company Share Bonus: ;shares;5;10
+Market Crash: Lose Shares ;shares;5;-10
+Good Day at the Races: Collect $;money;0;15
+Great Aunt Dies Inherit $;money;0;100
+Tax Return: Collect $;money;0;50
+Bad Day at the Races: Lose $;money;0;-15
+Market Boom: Bonus Shares ;shares;10;20
+Best Practice Award: Collect $;money;0;25
+Performance Bonus:;assets;10;20
+Financial Scandal: Lose $;money;0;-50
+Small Win in the Lottery: Collect $;money;0;15
+Winnings from Poker Night: Collect $;money;10;20
+Minor Share Adjustment: ;shares;2;4
+Attend a Conference: Pay $;money;0;25
+Company Share Bonus: ;shares;5;15
+Admirer Leaves a Gift: Collect $;money;5;10
+Performance Bonus:;assets;15;25
+Global Recession: Everyone Loses $;money;-1;-50

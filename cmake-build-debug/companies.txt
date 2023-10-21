@@ -1,0 +1,18 @@
+1;[A]ll Star Studios   ;+ money
+2;[B]ookworm Bookshops ;+ shares
+3;[C]hocoholics Inc    ;+ assets
+1;[D]ingo Dogwash      ;+ money
+2;[E]legant Car Sales  ;+ shares
+3;[F]lash Designs Inc  ;+ assets
+1;[G]ladies Galore!    ;+ money
+2;[H]eather's Hotels   ;+ shares
+3;[I]ncredible Cakes   ;+ assets
+1;[J]umble Records     ;+ money
+2;[K]att's Krafts      ;+ shares
+3;[L]icorice Allsorts  ;+ assets
+1;[M]agic Max's Music  ;+ money
+2;[N]erk and Sons      ;+ shares
+3;[O]mnibus Travel Co  ;+ assets
+1;[P]eregrine Flights  ;+ money
+2;[Q]uark Enterprises  ;+ shares
+3;[R]usty Hinge Repairs;+ assets

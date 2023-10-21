@@ -1,0 +1,15 @@
+# ninja log v5
+10	356	7188665913517177	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/Risk.cpp.obj	305645e3b87392ea
+2	285	7191339227911254	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/Player.cpp.obj	1d5827e24d827d71
+2	227	7191343710575370	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/Company.cpp.obj	9ab9b679f729b38d
+8	402	7191339229092939	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/main.cpp.obj	cfc1701bf721f268
+0	153	7192127409086078	build.ninja	1e2292dcce90b719
+227	303	7191343711312359	A2_Hao_I_Lin_Prototype.exe	9967b79198e3c6dc
+7	217	7191270166296119	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/CompanyClasses.cpp.obj	9badf616df4de2ab
+2	333	7195708253270868	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/Company.cpp.obj	9ab9b679f729b38d
+333	509	7195708254996409	A2_Hao_I_Lin_Prototype.exe	9967b79198e3c6dc
+3	255	7195708798178954	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/Company.cpp.obj	9ab9b679f729b38d
+6	422	7195708799849900	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/main.cpp.obj	cfc1701bf721f268
+422	514	7195708800731486	A2_Hao_I_Lin_Prototype.exe	9967b79198e3c6dc
+2	229	7195712453477851	CMakeFiles/A2_Hao_I_Lin_Prototype.dir/Company.cpp.obj	9ab9b679f729b38d
+229	310	7195712454265008	A2_Hao_I_Lin_Prototype.exe	9967b79198e3c6dc

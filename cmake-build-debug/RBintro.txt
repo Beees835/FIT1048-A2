@@ -1,0 +1,28 @@
+ OBJECTIVE: 
+ You must manage a Share Market Portfolio by buying and selling the 
+ shares in one or more companies. To be the first player to own the 
+ target number of companies and have at least the minimum amount of
+ cash to win the game.
+ 
+ SETUP:
+ You set the Difficulty level (1-3) and the number of players (1-4) 
+ with their names. The number of companies to own and the minimum 
+ amount of Cash in Hand required is set by the Difficulty Level. 
+ 
+ GAME PLAY:
+ The game can be quite tricky, so be careful to take risks only as 
+ necessary and manage your assets as responsibly as possible.
+ 
+ The game is played over a number of days, in which each player 
+ has one turn. You may choose one of the following actions:
+ 
+ * [B]uy shares in a company - up to as many as you can afford
+ * [S]ell shares in a company - up to as many as you own
+ * [A]cquire a company by paying its cost in shares
+ * [R]isks may pay off (or not) so use with caution
+ * [P]ower uses a corporate power to gain an immediate bonus
+ * [Q]uit ends the game for the player selecting it
+ 
+ The Share Market changes the price of shares every day so think 
+ carefully when you will buy and sell your shares. 
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
