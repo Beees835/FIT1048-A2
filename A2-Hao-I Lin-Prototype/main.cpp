@@ -185,25 +185,26 @@ void displayTitle() {
 
 void displayPlayerPortfolio(const Player& player) {
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << "                    " << player.getName() << "'s Share Portfolio and Assets" << endl;
+    cout <<  "                        " << player.getName() << "'s Share Portfolio and Assets" << endl;
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << "           Total Money $" << player.getMoney()
-         << "   Companies Owned: " << player.getCompanyDetails().size()
-         << "    Total Shares: " << player.getTotalSharesOwned() << "\n\n"
-         << "          Corporate Power Uses Left: " << player.getPowerUsesLeft() << "\n\n";
+    cout << "Total Money $" << setw(10) << player.getMoney()
+         << "Companies Owned: " << setw(5) << player.getCompanyDetails().size()
+         << "Total Shares: " << setw(5) << player.getTotalSharesOwned() << "\n\n"
+         << "Corporate Power Uses Left: " << setw(5) << player.getPowerUsesLeft() << "\n\n";
 
     if (player.getTotalSharesOwned() == 0) {
-        cout << "                   Your Share Portfolio is empty, " << player.getName() << endl;
+        cout << "Your Share Portfolio is empty, " << player.getName() << endl;
     } else {
-        cout << left << setw(20) << "Company Names" << setw(20) << "Shares" << setw(20) << "Power" << endl;
-        for (const auto& companyDetail : player.getCompanyDetails()) {
-//            string companyName = companyDetail.first;
-//            int sharesOwned = companyDetail.second;
-//            cout << left << setw(30) << companyName << setw(20) << sharesOwned << setw(20) << "No" << endl;
+        cout << left << setw(30) << "Company Names" << setw(20) << "Shares" << setw(20) << "Power" << endl;
+        for (const auto& company : player.getOwnedCompanies()) {
+            string companyName = company.getName();
+            int sharesOwned = company.getShares();
+            cout << left << setw(30) << companyName << setw(20) << sharesOwned << setw(20) << "No" << endl;
         }
     }
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
+
+
 
 // I prefer using my own file opening function the provided file opening functions don't work
 void displayGameIntro(const std::string& filename) {

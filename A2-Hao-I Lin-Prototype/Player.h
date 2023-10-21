@@ -40,6 +40,7 @@ public:
     int getTotalCompaniesOwned() const;
     int getPowerUsesLeft() const;
     vector<Company> getCompanyDetails() const;
+    vector<Company> getOwnedCompanies() const;
 
     // Mutators
     void setName(string name);

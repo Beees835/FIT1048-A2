@@ -80,3 +80,13 @@ bool Player::canBuyShares(const Company& company, int sharesToBuy) {
     }
 }
 
+// In Player.cpp
+vector<Company> Player::getOwnedCompanies() const {
+    vector<Company> ownedCompanies;
+    for (const auto& company : companyDetails) {
+        if (company.getShares() > 0) { // Assuming Company class has a getShares() method
+            ownedCompanies.push_back(company);
+        }
+    }
+    return ownedCompanies;
+}
