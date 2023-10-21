@@ -196,9 +196,9 @@ void displayPlayerPortfolio(const Player& player) {
         cout << "Your Share Portfolio is empty, " << player.getName() << endl;
     } else {
         cout << left << setw(30) << "Company Names" << setw(20) << "Shares" << setw(20) << "Power" << endl;
-        for (const auto& company : player.getOwnedCompanies()) {
+        for (const auto& company : player.getCompanyDetails()) { // Use getCompanyDetails instead of getOwnedCompanies
             string companyName = company.getName();
-            int sharesOwned = company.getShares();
+            int sharesOwned = company.getMaxShares() - company.getShares(); // Calculate shares owned by player
             cout << left << setw(30) << companyName << setw(20) << sharesOwned << setw(20) << "No" << endl;
         }
     }

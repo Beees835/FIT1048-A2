@@ -54,8 +54,8 @@ public:
     void setAcquired(bool acquired);
 
     // functions to see whether adding and removing shares work
-    void removeShares(int shares, int sharesToRemove);
-    void addShares(int shares, int sharesToAdd);
+    void removeShares(int sharesToRemove);
+    void addShares(int sharesToAdd);
 
 };
 

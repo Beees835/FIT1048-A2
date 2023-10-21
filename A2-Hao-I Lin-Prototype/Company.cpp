@@ -64,17 +64,18 @@ void Company::setMaxShares(int maxShares) { this->maxShares = maxShares; }
 void Company::setSharePrice(int price) { sharePrice = price; }
 void Company::setAcquired(bool acquired) { this->acquired = acquired; }
 
-void Company::addShares(int shares, int sharesToAdd) {
-    this->shares = shares + sharesToAdd;
+void Company::addShares(int sharesToAdd) {
+    this->shares += sharesToAdd;
 }
 
-void Company::removeShares(int shares, int sharesToRemove) {
-    if (shares - sharesToRemove < 0) {
+void Company::removeShares(int sharesToRemove) {
+    if (this->shares - sharesToRemove < 0) {
         this->shares = 0;
     } else {
-        this->shares = shares - sharesToRemove;
+        this->shares -= sharesToRemove;
     }
 }
+
 
 BronzeCompany::BronzeCompany(string Name, char index) : Company(Name, index) {}
 

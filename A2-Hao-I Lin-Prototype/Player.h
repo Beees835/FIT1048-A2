@@ -50,7 +50,7 @@ public:
     void setTotalCompaniesOwned(int companies);
     void setPowerUsesLeft(int power);
     void addCompany(Company company);
-    void addShares(Company& company, int sharesToAdd);
+    void addShares(int sharesToAdd);
     void removeShares(Company& company, int sharesToRemove);
     void buyShares(Company& company, int sharesToBuy);
     bool canBuyShares(const Company& company, int sharesToBuy);

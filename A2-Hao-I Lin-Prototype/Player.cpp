@@ -46,27 +46,36 @@ void Player::setTotalCompaniesOwned(int companies) { totalCompaniesOwned = compa
 void Player::setPowerUsesLeft(int power) { powerUsesLeft = power; }
 void Player::addCompany(Company company) { companyDetails.push_back(company); }
 
-void Player::addShares(Company& company, int sharesToAdd) {
-    company.addShares(company.getShares(), sharesToAdd);
-    this->totalSharesOwned += sharesToAdd;
-}
-
-void Player::removeShares(Company& company, int sharesToRemove) {
-    company.removeShares(company.getShares(), sharesToRemove);
-    this->totalSharesOwned -= sharesToRemove;
-    if (this->totalSharesOwned < 0) this->totalSharesOwned = 0; // Ensure totalSharesOwned doesn't go below 0
+void Player::addShares(int sharesToAdd) {
+    this->totalSharesOwned += sharesToAdd; // Update the player's total shares
 }
 
 void Player::buyShares(Company& company, int sharesToBuy) {
     double cost = sharesToBuy * company.getSharePrice();
     if (money >= cost && company.getShares() >= sharesToBuy) {
         money -= cost; // Deduct money
-        addShares(company, sharesToBuy); // Add shares to player
-        company.removeShares(company.getShares(), sharesToBuy); // Remove shares from company
+
+        // Check if the player already owns shares in the company
+        bool companyExists = false;
+        for (auto& ownedCompany : companyDetails) {
+            if (ownedCompany.getName() == company.getName()) {
+                companyExists = true;
+                break;
+            }
+        }
+
+        // If the player doesn't own shares in the company, add it to companyDetails
+        if (!companyExists) {
+            companyDetails.push_back(company);
+        }
+
+        totalSharesOwned += sharesToBuy; // Update the player's total shares
+        company.removeShares(sharesToBuy); // Remove shares from company
     } else {
         cout << "Transaction failed. Check if you have enough money or if the company has enough shares available.\n";
     }
 }
+
 
 bool Player::canBuyShares(const Company& company, int sharesToBuy) {
     // Calculate the total cost of buying the shares
@@ -80,11 +89,10 @@ bool Player::canBuyShares(const Company& company, int sharesToBuy) {
     }
 }
 
-// In Player.cpp
 vector<Company> Player::getOwnedCompanies() const {
     vector<Company> ownedCompanies;
     for (const auto& company : companyDetails) {
-        if (company.getShares() > 0) { // Assuming Company class has a getShares() method
+        if (company.getShares() > 0) {
             ownedCompanies.push_back(company);
         }
     }
