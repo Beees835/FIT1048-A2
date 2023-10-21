@@ -138,6 +138,9 @@ void runGame() {
                     break;
                 case 'S' | 's':
                     // Sell shares
+                    sellShares(players[i]);
+                    displayInterface(currentSettings);  // Return to main interface after selling
+                    break;
                     break;
                 case 'A' | 'a':
                     // Acquire company
@@ -196,14 +199,13 @@ void displayPlayerPortfolio(const Player& player) {
         cout << "Your Share Portfolio is empty, " << player.getName() << endl;
     } else {
         cout << left << setw(30) << "Company Names" << setw(20) << "Shares" << setw(20) << "Power" << endl;
-        for (const auto& company : player.getCompanyDetails()) { // Use getCompanyDetails instead of getOwnedCompanies
+        for (const auto& company : player.getCompanyDetails()) {
             string companyName = company.getName();
-            int sharesOwned = company.getMaxShares() - company.getShares(); // Calculate shares owned by player
+            int sharesOwned = player.getSharesOwnedForCompany(companyName);
             cout << left << setw(30) << companyName << setw(20) << sharesOwned << setw(20) << "No" << endl;
         }
     }
 }
-
 
 
 // I prefer using my own file opening function the provided file opening functions don't work
@@ -300,7 +302,7 @@ void buyShares(Player& player) {
         }
 
         player.buyShares(chosenCompany, sharesToBuy);
-        chosenCompany.setShares(chosenCompany.getShares() - sharesToBuy); // Update the company's available shares
+        chosenCompany.setShares(chosenCompany.getShares()); // Update the company's available shares
 
         char continueBuying;
         cout << "Do you want to buy more shares? (Y/N): " << endl;
@@ -312,6 +314,58 @@ void buyShares(Player& player) {
     }
 }
 
+void sellShares(Player& player) {
+    bool stillSelling = true;
+    while (stillSelling) {
+        // Display companies where the player owns shares
+        cout << "Companies where you own shares:\n";
+        for (int i = 0; i < companies.size(); i++) {
+            int ownedShares = player.getSharesOwnedForCompany(companies[i].getName());
+            if (ownedShares > 0) {
+                char companyChar = 'A' + i; // Convert index to character
+                cout << companyChar << ". " << companies[i].getName() << " - Owned shares: " << ownedShares
+                     << " - Share price: $" << companies[i].getSharePrice() << "\n";
+            }
+        }
+
+        // Get user choice
+        char choiceChar;
+        cout << "Sell shares in which company [A-" << static_cast<char>('A' + companies.size() - 1) << "]: ";
+        cin >> choiceChar;
+        choiceChar = toupper(choiceChar); // Convert to uppercase
+
+        int choice = choiceChar - 'A'; // Convert character to index
+
+        // Check if choice is valid
+        if (choice < 0 || choice >= companies.size()) {
+            cout << "Invalid choice! Please choose in the range A-" << static_cast<char>('A' + companies.size() - 1) << "\n";
+            continue; // Go back to the start of the loop
+        }
+
+        Company &chosenCompany = companies[choice];
+        int ownedShares = player.getSharesOwnedForCompany(chosenCompany.getName());
+
+        // Ask user how many shares they want to sell
+        int sharesToSell;
+        cout << "How many shares to sell (1-" << ownedShares << "): ";
+        cin >> sharesToSell;
+
+        if (sharesToSell < 1 || sharesToSell > ownedShares) {
+            cout << "Invalid number of shares to sell.\n";
+            continue; // Go back to the start of the loop
+        }
+
+        player.sellShares(chosenCompany, sharesToSell);
+        chosenCompany.setShares(chosenCompany.getShares() + sharesToSell); // Update the company's available shares
+
+        cout << "Do you want to sell more shares? (Y/N): ";
+        char continueSelling;
+        cin >> continueSelling;
+        if (continueSelling == 'N' || continueSelling == 'n') {
+            stillSelling = false;
+        }
+    }
+}
 
 void quitGame() {
     // allow player to quit game at anytime

@@ -56,7 +56,7 @@ public:
     // functions to see whether adding and removing shares work
     void removeShares(int sharesToRemove);
     void addShares(int sharesToAdd);
-
+    void increaseShares(int shares);
 };
 
 class BronzeCompany : public Company {

@@ -68,14 +68,18 @@ void Company::addShares(int sharesToAdd) {
     this->shares += sharesToAdd;
 }
 
+void Company::increaseShares(int shares) {
+    this->shares += shares;
+}
+
 void Company::removeShares(int sharesToRemove) {
     if (this->shares - sharesToRemove < 0) {
         this->shares = 0;
     } else {
+        cout << "shares to remove" << sharesToRemove << endl;
         this->shares -= sharesToRemove;
     }
 }
-
 
 BronzeCompany::BronzeCompany(string Name, char index) : Company(Name, index) {}
 

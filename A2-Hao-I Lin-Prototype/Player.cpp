@@ -8,10 +8,13 @@
 #include <sstream>
 #include "Player.h"
 #include "main.h"
+#include "Company.h"
+#include <map>
 
 using namespace std;
 
 extern const GameSettings difficultySettings[];
+std::map<std::string, int> sharesOwnedByPlayer; // Key: Company Name, Value: Number of shares owned
 /**
  * Default constructor for Player
  * default difficulty is Easy and default money is 100
@@ -51,7 +54,7 @@ void Player::addShares(int sharesToAdd) {
 }
 
 void Player::buyShares(Company& company, int sharesToBuy) {
-    double cost = sharesToBuy * company.getSharePrice();
+    double cost = sharesToBuy;
     if (money >= cost && company.getShares() >= sharesToBuy) {
         money -= cost; // Deduct money
 
@@ -70,6 +73,7 @@ void Player::buyShares(Company& company, int sharesToBuy) {
         }
 
         totalSharesOwned += sharesToBuy; // Update the player's total shares
+        cout << "shares to buy" << sharesToBuy << endl;
         company.removeShares(sharesToBuy); // Remove shares from company
     } else {
         cout << "Transaction failed. Check if you have enough money or if the company has enough shares available.\n";
@@ -89,12 +93,35 @@ bool Player::canBuyShares(const Company& company, int sharesToBuy) {
     }
 }
 
-vector<Company> Player::getOwnedCompanies() const {
-    vector<Company> ownedCompanies;
-    for (const auto& company : companyDetails) {
-        if (company.getShares() > 0) {
-            ownedCompanies.push_back(company);
-        }
+int Player::getSharesOwnedForCompany(const string &companyName) const {
+    if (sharesOwnedByPlayer.find(companyName) != sharesOwnedByPlayer.end()) {
+        return sharesOwnedByPlayer[companyName];
     }
-    return ownedCompanies;
+    return 0; // If the player doesn't own shares for this company
+}
+
+void Player::sellShares(Company& company, int sharesToSell) {
+    // Check if the player owns enough shares to sell
+    int ownedShares = getSharesOwnedForCompany(company.getName());
+    if (ownedShares >= sharesToSell) {
+        double earnings = company.getSharePrice() * sharesToSell; // Calculate the earnings from selling the shares
+        money += earnings; // Add earnings to the player's money
+
+        // Update the player's total shares and the shares owned for the specific company
+        totalSharesOwned -= sharesToSell;
+        sharesOwnedByPlayer[company.getName()] -= sharesToSell;
+
+        // If the player no longer owns shares in the company, remove it from companyDetails
+        if (sharesOwnedByPlayer[company.getName()] == 0) {
+            for (auto it = companyDetails.begin(); it != companyDetails.end(); ++it) {
+                if (it->getName() == company.getName()) {
+                    companyDetails.erase(it);
+                    break;
+                }
+            }
+        }
+        company.addShares(sharesToSell); // Add shares back to the company
+    } else {
+        cout << "Transaction failed. Check if you own enough shares to sell.\n";
+    }
 }

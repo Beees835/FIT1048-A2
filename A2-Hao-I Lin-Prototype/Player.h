@@ -9,7 +9,7 @@
 #include <vector>
 #include "Company.h"
 #include "main.h"
-
+#include <map>
 using namespace std;
 enum Difficulty { Easy, Tricky, Hard };  // Enum for difficulty levels
 extern const GameSettings difficultySettings[];
@@ -23,6 +23,7 @@ private:
     int totalCompaniesOwned;
     int powerUsesLeft;
     vector<Company> companyDetails;
+
 
 public:
     // Constructors
@@ -54,6 +55,8 @@ public:
     void removeShares(Company& company, int sharesToRemove);
     void buyShares(Company& company, int sharesToBuy);
     bool canBuyShares(const Company& company, int sharesToBuy);
+    int getSharesOwnedForCompany(const std::string& companyName) const;
+    void sellShares(Company& company, int sharesToSell);
 };
 
 #endif //A2_HAO_I_LIN_PROTOTYPE_PLAYER_H

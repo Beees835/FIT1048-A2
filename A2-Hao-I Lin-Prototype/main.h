@@ -40,5 +40,6 @@ void displayTitle();
 void displayPlayerPortfolio(const Player& player);
 void displayCompanyDetail();
 void buyShares(Player& player);
+void sellShares(Player& player);
 void quitGame();
 #endif //A2_HAO_I_LIN_PROTOTYPE_MAIN_H
