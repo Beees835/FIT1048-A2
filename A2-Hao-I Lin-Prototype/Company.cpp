@@ -11,7 +11,7 @@ using namespace std;
 // Default constructor for Company
 // Default constructor for Company
 
-Company::Company(string Name, char idx) : name(Name), owner("Nobody"), index(idx), acquired(false) {
+Company::Company(string Name, int idx) : name(Name), owner("Nobody"), index(idx), acquired(false) {
     switch (index) {
         case 1:
             level = 3;
@@ -30,13 +30,11 @@ Company::Company(string Name, char idx) : name(Name), owner("Nobody"), index(idx
             power = "";
             break;
     }
-    cout << "index" << level;
     cost = 2 * (5 * level);
-    shares = 1000; // Assuming a default value for shares
+    shares = 1000;
     maxShares = shares;
     sharePrice = rand() % (level + 4) + 1; // Random value between 1 and (level + 4)
 }
-
 
 // Destructor
 Company::~Company() {}

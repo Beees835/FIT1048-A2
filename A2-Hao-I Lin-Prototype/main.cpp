@@ -19,7 +19,6 @@ using namespace std;
 //////////////////
 // Declarations //
 //////////////////
-std::vector<std::string> companyNames = readCompanyNames("companies.txt");
 std::vector<Company> companies;
 Difficulty difficulty;
 int numPlayers;
@@ -73,9 +72,6 @@ void init() {
 
     difficulty = static_cast<Difficulty>(choice - 1);
 
-    // declare maxCompanies after difficulty is selected and get the value from difficultySettings
-    int maxCompanies = difficultySettings[difficulty].maxCompanies;
-
     // Get player names and set difficulty level for each player using overloaded constructor
     for(int i = 0; i < numPlayers; i++){
         string name;
@@ -85,11 +81,39 @@ void init() {
         players.push_back(player);
     }
 
-    // Initialize companies with default values
-    for (int i = 0; i < maxCompanies; i++) {
-        char index = i; // Assuming companyNames are in order from A to Z
-        Company company = Company(companyNames[i], index);
-        companies.push_back(company);
+    // Open the companies.txt file for reading
+    ifstream file("companies.txt");
+    if (file.is_open()) {
+        string line;
+        int companyCount = 0; // Counter for the number of companies read
+
+        // Set the number of companies based on difficulty level
+        int maxCompanies;
+        switch (difficulty) {
+            case EASY:   maxCompanies = 12; break;
+            case TRICKY: maxCompanies = 15; break;
+            case HARD:   maxCompanies = 18; break;
+            default:     maxCompanies = 12; break; // Default to EASY mode
+        }
+
+        while (getline(file, line) && companyCount < maxCompanies) {
+            stringstream ss(line);
+            int index;
+            string name, power;
+            char delimiter;
+
+            ss >> index >> delimiter;
+            getline(ss, name, ';');
+            getline(ss, power, ';');
+
+            Company company = Company(name, index);
+            companies.push_back(company);
+
+            companyCount++; // Increment the counter
+        }
+        file.close();
+    } else {
+        cout << "Error: Unable to open companies.txt file." << endl;
     }
 }
 

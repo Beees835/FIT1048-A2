@@ -22,8 +22,8 @@ protected:
     bool acquired;
 
 public:
-    Company() : name(""), owner("Nobody"), power(""), index(0), cost(0), level(0), shares(0), maxShares(0), sharePrice(0), acquired(false) {}
-    Company(string name, char index); // New constructor
+    Company() : owner("Nobody"), power(""), index(0), cost(0), level(0), shares(0), maxShares(0), sharePrice(0), acquired(false) {}
+    Company(string name, int index); // New constructor
 
     // Destructor
     ~Company();
