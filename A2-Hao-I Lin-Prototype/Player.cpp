@@ -56,3 +56,27 @@ void Player::removeShares(Company& company, int sharesToRemove) {
     this->totalSharesOwned -= sharesToRemove;
     if (this->totalSharesOwned < 0) this->totalSharesOwned = 0; // Ensure totalSharesOwned doesn't go below 0
 }
+
+void Player::buyShares(Company& company, int sharesToBuy) {
+    double cost = sharesToBuy * company.getSharePrice();
+    if (money >= cost && company.getShares() >= sharesToBuy) {
+        money -= cost; // Deduct money
+        addShares(company, sharesToBuy); // Add shares to player
+        company.removeShares(company.getShares(), sharesToBuy); // Remove shares from company
+    } else {
+        cout << "Transaction failed. Check if you have enough money or if the company has enough shares available.\n";
+    }
+}
+
+bool Player::canBuyShares(const Company& company, int sharesToBuy) {
+    // Calculate the total cost of buying the shares
+    double totalCost = company.getSharePrice() * sharesToBuy;
+
+    // Check if the player has enough money
+    if (this->money >= totalCost) {
+        return true;
+    } else {
+        return false;
+    }
+}
+

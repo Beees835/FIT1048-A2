@@ -11,7 +11,7 @@
 #include "main.h"
 
 using namespace std;
-enum Difficulty { Easy = 1, Tricky, Hard };  // Enum for difficulty levels
+enum Difficulty { Easy, Tricky, Hard };  // Enum for difficulty levels
 extern const GameSettings difficultySettings[];
 
 class Player {
@@ -51,6 +51,8 @@ public:
     void addCompany(Company company);
     void addShares(Company& company, int sharesToAdd);
     void removeShares(Company& company, int sharesToRemove);
+    void buyShares(Company& company, int sharesToBuy);
+    bool canBuyShares(const Company& company, int sharesToBuy);
 };
 
 #endif //A2_HAO_I_LIN_PROTOTYPE_PLAYER_H

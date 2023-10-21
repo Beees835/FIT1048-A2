@@ -33,7 +33,6 @@ const GameSettings difficultySettings[] = {
 
 int main() {
     srand(unsigned(time(nullptr)));  // Seed randoms
-
     init();                       // Initialize game data
     runGame();                    // Play the game
     waitForPlayer();              // Wait and exit
@@ -90,10 +89,10 @@ void init() {
         // Set the number of companies based on difficulty level
         int maxCompanies;
         switch (difficulty) {
-            case EASY:   maxCompanies = 12; break;
-            case TRICKY: maxCompanies = 15; break;
-            case HARD:   maxCompanies = 18; break;
-            default:     maxCompanies = 12; break; // Default to EASY mode
+            case Difficulty::Easy:   maxCompanies = 12; break;
+            case Difficulty::Tricky: maxCompanies = 15; break;
+            case Difficulty::Hard:   maxCompanies = 18; break;
+            default:                 maxCompanies = 12; break; // Default to EASY mode
         }
 
         while (getline(file, line) && companyCount < maxCompanies) {
@@ -125,8 +124,37 @@ void runGame() {
     // Main game loop
     for (int day = 1; day <= currentSettings.maxDaysToPlay; ++day) {
         for (int i = 0; i < numPlayers; ++i) {
+            char userAction;
+            cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+            cout << "         [B]uy   [S]ell   [A]cquire   [P]ower   [R]isk   [Q]uit              " << endl;
+            cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
             cout << "Player " << (i + 1) << "'s turn:\n";
-            // Player's actions go here
+            cout << "What will you do now ? " << endl;
+            cin >> userAction;
+            switch (userAction) {
+                case 'B' | 'b':
+                    buyShares(players[i]);
+                    displayInterface(currentSettings);  // Return to main interface after buying
+                    break;
+                case 'S' | 's':
+                    // Sell shares
+                    break;
+                case 'A' | 'a':
+                    // Acquire company
+                    break;
+                case 'P' | 'p':
+                    // Use corporate power
+                    break;
+                case 'R' | 'r':
+                    // Take a risk
+                    break;
+                case 'Q' | 'q':
+                    quitGame();
+                    break;
+                default:
+                    cout << "Invalid input!\n";
+                    break;
+            }
         }
         // Update share prices and other end-of-day updates
     }
@@ -145,14 +173,6 @@ void displayInterface(const GameSettings& currentSettings) {
     for (int i =0; i < numPlayers; i++) {
         displayPlayerPortfolio(players[i]);
     }
-
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << "         [B]uy   [S]ell   [A]cquire   [P]ower   [R]isk   [Q]uit              " << endl;
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << "What will you do now ? ";
-    string userInput;
-    cin >> userInput; // get user input
-
 }
 
 void displayTitle() {
@@ -171,10 +191,16 @@ void displayPlayerPortfolio(const Player& player) {
          << "   Companies Owned: " << player.getCompanyDetails().size()
          << "    Total Shares: " << player.getTotalSharesOwned() << "\n\n"
          << "          Corporate Power Uses Left: " << player.getPowerUsesLeft() << "\n\n";
+
     if (player.getTotalSharesOwned() == 0) {
         cout << "                   Your Share Portfolio is empty, " << player.getName() << endl;
     } else {
-        // You can add code here to display the shares the player owns
+        cout << left << setw(20) << "Company Names" << setw(20) << "Shares" << setw(20) << "Power" << endl;
+        for (const auto& companyDetail : player.getCompanyDetails()) {
+//            string companyName = companyDetail.first;
+//            int sharesOwned = companyDetail.second;
+//            cout << left << setw(30) << companyName << setw(20) << sharesOwned << setw(20) << "No" << endl;
+        }
     }
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
@@ -229,51 +255,76 @@ void displayCompanyDetail() {
     }
 }
 
-std::vector<std::string> readCompanyNames(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open " << filename << std::endl;
-        return {};  // Return an empty vector if the file can't be opened
-    }
+void buyShares(Player& player) {
+    bool stillBuying = true;
+    while (stillBuying) {
+        // Display available companies
+        cout << "Available companies:\n";
+        for (int i = 0; i < companies.size(); i++) {
+            char companyChar = 'A' + i; // Convert index to character
+            cout << companyChar << ". " << companies[i].getName() << " - Available shares: " << companies[i].getShares()
+                 << " - Share price: $" << companies[i].getSharePrice() << "\n";
+        }
 
-    std::vector<std::string> allCompanyNames;
-    std::string line;
+        // Get user choice
+        char choiceChar;
+        cout << "Buy shares in which company [A-" << static_cast<char>('A' + companies.size() - 1) << "]: ";
+        cin >> choiceChar;
+        choiceChar = toupper(choiceChar); // Convert to uppercase
 
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string temp;
-        if (std::getline(ss, temp, ';') && std::getline(ss, temp, ';')) {  // Ensure both parts exist
-            temp.erase(0, temp.find_first_not_of(" \t\n\r"));  // remove leading whitespace
-            temp.erase(temp.find_last_not_of(" \t\n\r") + 1);  // remove trailing whitespace
-            allCompanyNames.push_back(temp);
-        } else {
-            std::cerr << "Warning: Unexpected format in line: " << line << std::endl;
+        int choice = choiceChar - 'A'; // Convert character to index
+
+        // Check if choice is valid
+        if (choice < 0 || choice >= companies.size()) {
+            cout << "Invalid choice! Please choose in the range A-" << static_cast<char>('A' + companies.size() - 1) << "\n";
+            continue; // Go back to the start of the loop
+        }
+
+        Company &chosenCompany = companies[choice];
+
+        // Ask user how many shares they want to buy
+        int sharesToBuy;
+        cout << "How many shares to buy (1-" << chosenCompany.getShares() << "): ";
+        cin >> sharesToBuy;
+
+        if (!player.canBuyShares(chosenCompany, sharesToBuy)) {
+            cout << "Insufficient amount of money to buy shares.\n";
+            cout << "Do you want to buy more shares? (Y/N): ";
+            char continueAfterInsufficientFunds;
+            cin >> continueAfterInsufficientFunds;
+            if (continueAfterInsufficientFunds == 'N' || continueAfterInsufficientFunds == 'n') {
+                stillBuying = false;
+            }
+            continue; // Go back to the start of the loop
+        }
+
+        player.buyShares(chosenCompany, sharesToBuy);
+        chosenCompany.setShares(chosenCompany.getShares() - sharesToBuy); // Update the company's available shares
+
+        char continueBuying;
+        cout << "Do you want to buy more shares? (Y/N): " << endl;
+        cin >> continueBuying;
+
+        if (continueBuying == 'N' || continueBuying == 'n') {
+            stillBuying = false;
         }
     }
-    return allCompanyNames;
 }
 
 
-//Company randomCompanyInitializer(string name, char index) {
-//    // Default owner is set to "None" since no player owns the company initially
-//    string defaultOwner = "None";
-//
-//    // Assuming there are 5 types of powers, we randomly select one for the company
-//    string powers[] = {"Power1", "Power2", "Power3", "Power4", "Power5"};
-//    string power = powers[rand() % 5];
-//
-//    // Randomly generate other attributes for the company based on the new constraints
-//    int cost = rand() % 31 + 30;               // Random cost between 30 and 60
-//    int level = rand() % 5 + 1;                // Random level between 1 and 5
-//    int shares = rand() % 41 + 40;             // Random shares between 40 and 80
-//    int maxShares = 100;                       // Assuming max shares for all companies are 100
-//    int sharePrice = rand() % 4 + 3;           // Random share price between 3 and 6
-//    bool acquired = false;                     // Initially, no company is acquired
-//
-//    // Return a Company object initialized with the generated values
-//    return Company(name, defaultOwner, power, cost, level, shares, maxShares, sharePrice, index, acquired);
-//}
-
+void quitGame() {
+    // allow player to quit game at anytime
+    cout << "Quit game now? (Y/N): ";
+    char userAction;
+    cin >> userAction;
+    if (userAction == 'Y' || userAction == 'y') {
+        cout << "Thank you for playing Risky Business!" << endl;
+        exit(0);
+    }
+    else {
+        return;
+    }
+}
 
 ////////////////////////////
 // Helper functions below //

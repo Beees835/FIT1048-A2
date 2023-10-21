@@ -31,7 +31,7 @@ Company::Company(string Name, int idx) : name(Name), owner("Nobody"), index(idx)
             break;
     }
     cost = 2 * (5 * level);
-    shares = 1000;
+    shares = 40 + rand() % 21;  // Random value between 40 and 60
     maxShares = shares;
     sharePrice = rand() % (level + 4) + 1; // Random value between 1 and (level + 4)
 }

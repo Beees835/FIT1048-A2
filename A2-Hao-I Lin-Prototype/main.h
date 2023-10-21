@@ -38,8 +38,7 @@ void waitForPlayer();
 void clearScreen();
 void displayTitle();
 void displayPlayerPortfolio(const Player& player);
-std::vector<std::string> readCompanyNames(const std::string& filename);
-Company randomCompanyInitializer(string name, char index);
 void displayCompanyDetail();
-
+void buyShares(Player& player);
+void quitGame();
 #endif //A2_HAO_I_LIN_PROTOTYPE_MAIN_H
