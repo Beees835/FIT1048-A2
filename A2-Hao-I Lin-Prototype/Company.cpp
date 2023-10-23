@@ -31,10 +31,14 @@ Company::Company(string Name, int idx) : name(Name), owner("Nobody"), index(idx)
             break;
     }
     cost = 2 * (5 * level);
-    shares = 40 + rand() % 21;  // Random value between 40 and 60
+
+    // Ensure shares are at least the cost
+    int minShares = cost;
+    shares = minShares + rand() % 21;  // Random value between cost and cost+20
     maxShares = shares;
     sharePrice = rand() % (level + 4) + 1; // Random value between 1 and (level + 4)
 }
+
 
 // Destructor
 Company::~Company() {}
@@ -62,18 +66,27 @@ void Company::setLevel(int level) { this->level = level; }
 void Company::setShares(int shares) { this->shares = shares; }
 void Company::setMaxShares(int maxShares) { this->maxShares = maxShares; }
 void Company::setSharePrice(int price) { sharePrice = price; }
-void Company::setAcquired(bool acquired) { this->acquired = acquired; }
+// Inside the Company class:
+
+// setAcquired method to set the acquired status of the company
+// also update shares when the company is acquired
+void Company::setAcquired(bool acquired) {
+    this->acquired = acquired;
+    if (acquired) {
+        // Decrease the shares when the company is acquired
+        cout << "Shares to remove in set acquired " << this->cost << endl; // Debugging
+        addShares(this->cost);
+    }
+}
 
 void Company::addShares(int sharesToAdd) {
     this->shares += sharesToAdd;
 }
 
-void Company::increaseShares(int shares) {
-    this->shares += shares;
-}
-
 void Company::removeShares(int sharesToRemove) {
+    // Condition prevent shares to be negative when removing shares
     if (this->shares - sharesToRemove < 0) {
+        cout << "shares to remove in remove shares " << sharesToRemove << endl;
         this->shares = 0;
     } else {
         cout << "shares to remove" << sharesToRemove << endl;
