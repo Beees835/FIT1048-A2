@@ -12,12 +12,12 @@
 #include <map>
 #include <set>
 using namespace std;
-enum Difficulty { Easy, Tricky, Hard };  // Enum for difficulty levels
+
 extern const GameSettings difficultySettings[];
 extern std::map<std::string, std::string> acquiredCompanyPowers; // Key: Company Name, Value: Power associated
 
 class Player {
-private:
+protected:
     string name;
     Difficulty difficultyLevel;  // Changed mode to difficultyLevel of type Difficulty
     double money;

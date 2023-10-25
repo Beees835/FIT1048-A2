@@ -14,6 +14,10 @@
 #include "Company.h"
 #include "Risk.h"
 #include "main.h"
+#include "bronzeCompany.h"
+#include "silverCompany.h"
+#include "goldCompany.h"
+
 
 using namespace std;
 
@@ -24,6 +28,44 @@ std::vector<Company*> companies;  // Using pointers to store company objects
 Difficulty difficulty;
 int currentMaxDay = 1;
 Player player;
+
+///////////////////////
+//  Testing methods  //
+///////////////////////
+void testingMergeCompany(Player& player) {
+    if (companies.size() == 0) {
+        cout << "No companies available to merge.\n";
+        return;
+    }
+    Company* targetCompany = companies[0];
+    cout << "Selected company for merge: " << targetCompany->getName() << "\n";
+
+    string opponentName = "DummyOpponent";
+    cout << "Selected opponent for merge: " << opponentName << "\n";
+
+    if (player.getSharesOwnedForCompany(targetCompany->getName()) == 0) {
+        cout << "You don't have shares in the selected company.\n";
+        return;
+    }
+
+    double totalCost = targetCompany->getSharePrice() * player.getSharesOwnedForCompany(targetCompany->getName());
+    if (player.getMoney() < totalCost) {
+        cout << "You can't afford the merger.\n";
+        return;
+    }
+
+    player.setMoney(player.getMoney() - totalCost);
+    int opponentShares = 10;  // Example value
+
+    // Use buyShares method to simulate acquiring the shares from the opponent
+    player.buyShares(*targetCompany, opponentShares);
+
+    // Update the company's available shares
+    targetCompany->setShares(targetCompany->getShares());
+
+    cout << "Merge successful! You now have " << player.getSharesOwnedForCompany(targetCompany->getName()) << " shares in " << targetCompany->getName() << ".\n";
+}
+
 
 const GameSettings difficultySettings[] = {
         {4, 12, 3, 500, 40, 6},  // Easy
@@ -47,7 +89,7 @@ int main() {
 
 void init() {
     displayGameIntro("RBintro.txt");
-
+    Risk::loadRisksFromFile("riskAdvanced.txt");
     // Get difficulty level
     int choice;
     do {
@@ -98,15 +140,14 @@ void init() {
 
             Company* newCompany;
             if (power == "+ money") {
-                newCompany = new BronzeCompany(name, index);
+                newCompany = new bronzeCompany(name, index);
             } else if (power == "+ shares") {
-                newCompany = new SilverCompany(name, index);
+                newCompany = new silverCompany(name, index);
             } else if (power == "+ assets") {
-                newCompany = new GoldCompany(name, index);
+                newCompany = new goldCompany(name, index);
             } else {
                 newCompany = new Company(name, index);
             }
-
             companies.push_back(newCompany);
             companyCount++; // Increment the counter
         }
@@ -124,7 +165,7 @@ void runGame() {
     for (int day = 1; day <= currentSettings.maxDaysToPlay; ++day) {
         char userAction;
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-        cout << "         [B]uy   [S]ell   [A]cquire   [P]ower   [R]isk   [Q]uit              " << endl;
+        cout << "         [B]uy   [S]ell   [A]cquire   [P]ower   [R]isk   [M]erge   [Q]uit          " << endl;
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "What will you do now ? " << endl;
         cin >> userAction;
@@ -146,16 +187,22 @@ void runGame() {
                 displayInterface(currentSettings);
                 break;
             case 'R' | 'r':
-                // Take a risk
+                takeRisk(player, difficulty);
+                displayInterface(currentSettings);
                 break;
             case 'Q' | 'q':
                 quitGame();
+                break;
+            case 'M' | 'm':
+                testingMergeCompany(player);
+                displayInterface(currentSettings);
                 break;
             default:
                 cout << "Invalid input!\n";
                 break;
         }
-        // Update share prices and other end-of-day updates
+        // update current day
+        currentMaxDay++;
     }
 }
 
@@ -412,7 +459,7 @@ void acquireCompany(Player& player) {
             continue; // Skip already acquired companies
         }
         char companyChar = 'A' + i; // Convert index to character
-        cout << companyChar << ". " << companies[i]->getName() << " - Cost: " << companies[i]->getCost() << " shares\n";
+        cout << companyChar << ". " << companies[i]->getName() << " - Total Shares: " << companies[i]->getMaxShares() << "\n";
     }
 
     // Get user choice
@@ -432,8 +479,8 @@ void acquireCompany(Player& player) {
     Company* chosenCompany = companies[choice];
 
     // Check if player can acquire the company
-    if (player.getSharesOwnedForCompany(chosenCompany->getName()) < chosenCompany->getCost()) {
-        cout << "You do not have enough shares to acquire this company." << endl;
+    if (player.getSharesOwnedForCompany(chosenCompany->getName()) < chosenCompany->getMaxShares()) {
+        cout << "You do not own all the shares of this company. Owning all shares is required to acquire it." << endl;
         return;
     }
 
@@ -445,6 +492,56 @@ void acquireCompany(Player& player) {
         cout << "Failed to acquire " << chosenCompany->getName() << "." << endl;
     }
 }
+
+
+
+//void acquireCompany(Player& player) {
+//    // Check if the player has any power uses left
+//    if (player.getPowerUsesLeft() <= 0) {
+//        cout << "You have no power uses left." << endl;
+//        return;
+//    }
+//
+//    // Display available companies
+//    cout << "Available companies to acquire:\n";
+//    for (int i = 0; i < companies.size(); i++) {
+//        if (companies[i]->isAcquired()) {
+//            continue; // Skip already acquired companies
+//        }
+//        char companyChar = 'A' + i; // Convert index to character
+//        cout << companyChar << ". " << companies[i]->getName() << " - Cost: " << companies[i]->getCost() << " shares\n";
+//    }
+//
+//    // Get user choice
+//    char choiceChar;
+//    cout << "Acquire which company [A-" << static_cast<char>('A' + companies.size() - 1) << "]: ";
+//    cin >> choiceChar;
+//    choiceChar = toupper(choiceChar); // Convert to uppercase
+//
+//    int choice = choiceChar - 'A'; // Convert character to index
+//
+//    // Check if choice is valid
+//    if (choice < 0 || choice >= companies.size() || companies[choice]->isAcquired()) {
+//        cout << "Invalid choice! Please choose an available company in the range A-" << static_cast<char>('A' + companies.size() - 1) << "\n";
+//        return;
+//    }
+//
+//    Company* chosenCompany = companies[choice];
+//
+//    // Check if player can acquire the company
+//    if (player.getSharesOwnedForCompany(chosenCompany->getName()) < chosenCompany->getCost()) {
+//        cout << "You do not have enough shares to acquire this company." << endl;
+//        return;
+//    }
+//
+//    // Acquire the company
+//    if (player.acquireCompany(*chosenCompany)) {
+//        chosenCompany->setOwner(player.getName());
+//        cout << "You have successfully acquired " << chosenCompany->getName() << "!" << endl;
+//    } else {
+//        cout << "Failed to acquire " << chosenCompany->getName() << "." << endl;
+//    }
+//}
 
 void useCorporatePower(Player& player) {
     // Check if the player has any power uses left
@@ -500,6 +597,12 @@ void useCorporatePower(Player& player) {
     // Calculate the multiplier
     int multiplier = rand() % player.getDifficultyLevel() + 2;
 
+    // based on the return string of getPower(), do the following action
+    // reason doing this is because rather than spreading around the logic
+    // we just organize all logics here ,and we don't need to reply on the
+    // derived classes to implement the logic. Since keep the logic in the
+    // derived classes is not a good idea, the code becomes harder to manage
+    // and maintain.
     if (power == "+ money") {
         double moneyToAdd = 10 * (player.getDifficultyLevel() * multiplier);
         player.setMoney(player.getMoney() + moneyToAdd);
@@ -530,6 +633,176 @@ void quitGame() {
         cout << "Thank you for playing Risky Business!" << endl;
         exit(0);
     }
+}
+
+void takeRisk(Player& player, Difficulty difficulty) {
+    if (!Risk::areRisksLoaded()) {
+        cerr << "Error: No risks loaded. Please load risks first." << endl;
+        return;
+    }
+
+    Risk randomRisk = Risk::getRandomRisk();
+    cout << "You drew the following risk:\n";
+    cout << randomRisk.getDetails() << endl;
+
+    int gameModeMultiplier = static_cast<int>(difficulty) + 1;
+    int effectValue = 0;
+
+    if (randomRisk.getMaxValue() > 0) {
+        effectValue = gameModeMultiplier * (rand() % (randomRisk.getMaxValue() - randomRisk.getMinValue() + 1) + randomRisk.getMinValue());
+    } else if (randomRisk.getMinValue() < 0) {
+        effectValue = randomRisk.getMaxValue() * gameModeMultiplier;
+    }
+
+    if (randomRisk.getEffect() == "money") {
+        player.setMoney(player.getMoney() + effectValue);
+        cout << "Your money has been adjusted by: $" << effectValue << endl;
+    } else if (randomRisk.getEffect() == "shares") {
+        // Check if the player owns any shares
+        if (player.getTotalSharesOwned() == 0) {
+            cout << "The risk affects shares, but you don't own shares in any company!" << endl;
+            return;
+        }
+
+        // Display companies where the player owns shares
+        cout << "Companies where you own shares:\n";
+        char choiceChar = 'A';
+        for (const auto& companyPtr : companies) {
+            int ownedShares = player.getSharesOwnedForCompany(companyPtr->getName());
+            if (ownedShares > 0) {
+                cout << choiceChar << ". " << companyPtr->getName() << " - Owned shares: " << ownedShares << "\n";
+                choiceChar++;
+            }
+        }
+
+        // Get user choice
+        char userChoice;
+        cout << "Choose a company to apply the risk effect on: ";
+        cin >> userChoice;
+        userChoice = toupper(userChoice); // Convert to uppercase
+
+        Company* chosenCompany = nullptr;
+        int index = userChoice - 'A'; // Convert character to index
+        for (const auto& companyPtr : companies) {
+            if (player.getSharesOwnedForCompany(companyPtr->getName()) > 0 && index-- == 0) {
+                chosenCompany = companyPtr;
+                break;
+            }
+        }
+
+        if (!chosenCompany) {
+            cout << "Invalid choice. Returning to the main menu." << endl;
+            return;
+        }
+
+        if (effectValue > 0) {
+            player.buyShares(*chosenCompany, effectValue);
+        } else {
+            player.sellShares(*chosenCompany, abs(effectValue));
+        }
+        cout << "Your shares in " << chosenCompany->getName() << " have been adjusted by: " << effectValue << endl;
+
+    } else if (randomRisk.getEffect() == "assets") {
+        player.setMoney(player.getMoney() + effectValue);
+        cout << "Your money has been adjusted by: $" << effectValue << endl;
+
+        // Now calculate the effect on shares, similar to the 'shares' effect above
+        if (player.getTotalSharesOwned() > 0) {
+            cout << "Companies where you own shares:\n";
+            char choiceChar = 'A';
+            for (const auto& companyPtr : companies) {
+                int ownedShares = player.getSharesOwnedForCompany(companyPtr->getName());
+                if (ownedShares > 0) {
+                    cout << choiceChar << ". " << companyPtr->getName() << " - Owned shares: " << ownedShares << "\n";
+                    choiceChar++;
+                }
+            }
+
+            char userChoice;
+            cout << "Choose a company to apply the risk effect on shares: ";
+            cin >> userChoice;
+            userChoice = toupper(userChoice);
+
+            Company* chosenCompany = nullptr;
+            int index = userChoice - 'A';
+            for (const auto& companyPtr : companies) {
+                if (player.getSharesOwnedForCompany(companyPtr->getName()) > 0 && index-- == 0) {
+                    chosenCompany = companyPtr;
+                    break;
+                }
+            }
+
+            if (!chosenCompany) {
+                cout << "Invalid choice. Returning to the main menu." << endl;
+                return;
+            }
+
+            if (effectValue > 0) {
+                player.buyShares(*chosenCompany, effectValue);
+            } else {
+                player.sellShares(*chosenCompany, abs(effectValue));
+            }
+
+            cout << "Both your money and shares in " << chosenCompany->getName() << " have been adjusted." << endl;
+        } else {
+            cout << "The risk affects shares, but you don't own shares in any company!" << endl;
+        }
+    }
+}
+
+
+void mergeCompany(Player& player) {
+    // Ask the player which company they want to merge.
+    cout << "Which company do you want to merge with?\n";
+    for (int i = 0; i < companies.size(); i++) {
+        cout << char('A' + i) << ". " << companies[i]->getName() << "\n";
+    }
+
+    char companyChoice;
+    cin >> companyChoice;
+    companyChoice = toupper(companyChoice);
+    int companyIndex = companyChoice - 'A';
+
+    if (companyIndex < 0 || companyIndex >= companies.size()) {
+        cout << "Invalid choice.\n";
+        return;
+    }
+
+    Company* targetCompany = companies[companyIndex];
+
+    // Ask the player which opponent player they want to merge with
+    // Note: For the sake of this example, let's assume there is only one opponent named "Opponent".
+    // In a real game, you'd need to manage multiple players and list them out for selection.
+    cout << "Which opponent do you want to merge with? (Enter 'Opponent' for now): ";
+    string opponentName;
+    cin >> opponentName;
+
+    if (opponentName != "Opponent") {
+        cout << "Invalid opponent name.\n";
+        return;
+    }
+
+    // Check that both players have shares in the selected company.
+    // Note: In this example, we assume the opponent has shares in every company.
+    if (player.getSharesOwnedForCompany(targetCompany->getName()) == 0) {
+        cout << "You don't have shares in the selected company.\n";
+        return;
+    }
+
+    // The player initiating the merge must pay the opponent the current value of the shares.
+    double totalCost = targetCompany->getSharePrice() * player.getSharesOwnedForCompany(targetCompany->getName());
+    if (player.getMoney() < totalCost) {
+        cout << "You can't afford the merger.\n";
+        return;
+    }
+
+    // Complete the transactions
+    player.setMoney(player.getMoney() - totalCost);
+    // Note: We assume the opponent gives all their shares in the company.
+    // In a real game, you'd need to get the exact number of shares from the opponent.
+    int opponentShares = 10;  // Example value
+    player.addShares(opponentShares);
+    cout << "Merge successful! You now have " << player.getSharesOwnedForCompany(targetCompany->getName()) << " shares in " << targetCompany->getName() << ".\n";
 }
 
 ////////////////////////////

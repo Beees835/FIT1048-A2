@@ -5,7 +5,12 @@
 #include "Risk.h"
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <algorithm> // for std::shuffle
+#include <random>    // for std::default_random_engine
+#include <vector>
 using namespace std;
+vector<Risk> Risk::allRisks;
 
 // Default constructor for Risk
 Risk::Risk() : description(""), effect(""), minValue(0), maxValue(0) {}
@@ -26,42 +31,48 @@ void Risk::setEffect(string effect) { this->effect = effect; }
 void Risk::setMinValue(int minValue) { this->minValue = minValue; }
 void Risk::setMaxValue(int maxValue) { this->maxValue = maxValue; }
 
-// Display details
 string Risk::getDetails() {
-    stringstream details;
-    details << "----- Risk Details -----\n";
-    details << "Description: " << description << "\n";
-    details << "Effect: " << effect << "\n";
-    details << "Min Value: " << minValue << "\n";
-    details << "Max Value: " << maxValue << "\n";
-    details << "------------------------\n";
-    return details.str();
+    stringstream ss;
+    ss << "Description: " << description << "\n";
+    ss << "Effect: " << effect << "\n";
+    ss << "Min Value: " << minValue << "\n";
+    ss << "Max Value: " << maxValue << "\n";
+    return ss.str();
 }
 
-// Test function
-void Risk::testRisk() {
-    cout << "====== Testing Risk class ======\n";
+void Risk::loadRisksFromFile(const string& filename) {
+    ifstream file(filename);
+    string line;
 
-    // Testing default constructor
-    Risk defaultRisk;
-    cout << "\nTesting Default Constructor Risk Details: \n";
-    // Setters testing for default constructor
-    defaultRisk.setDescription("Testing Default Risk Description");
-    defaultRisk.setEffect("Testing Default Effect");
-    defaultRisk.setMinValue(-3);
-    defaultRisk.setMaxValue(3);
-    // Displaying the details set by the setters
-    cout << defaultRisk.getDetails() << endl;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string description, effect, token;
+        int minValue, maxValue;
 
-    // Testing overloaded constructor
-    Risk marketCrash("Market Crash: Lose Shares ", "shares", 5, -10);
-    cout << "\nTesting Overloaded Constructor - Market Crash Risk Details: \n";
-    cout << marketCrash.getDetails() << endl;
+        getline(ss, description, ';');
+        getline(ss, effect, ';');
+        getline(ss, token, ';');
+        minValue = stoi(token);
+        getline(ss, token, ';');
+        maxValue = stoi(token);
 
-    Risk advancedRisk("Global Recession: Everyone Loses $ ", "money", -1, -50);
-    cout << "\nTesting Overloaded Constructor - Global Recession Details: \n";
-    cout << advancedRisk.getDetails() << endl;
+        allRisks.emplace_back(description, effect, minValue, maxValue);
+    }
+    // Shuffle the risks after loading
+    shuffleRisks();
+}
 
-    cout << "\n====== End of Risk class tests ======\n";
+void Risk::shuffleRisks() {
+    auto rng = std::default_random_engine{};
+    std::shuffle(std::begin(allRisks), std::end(allRisks), rng);
+}
+
+Risk Risk::getRandomRisk() {
+    int randomIndex = rand() % allRisks.size();
+    return allRisks[randomIndex];
+}
+
+bool Risk::areRisksLoaded() {
+    return !allRisks.empty();
 }
 

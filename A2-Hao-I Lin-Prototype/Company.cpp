@@ -93,21 +93,3 @@ void Company::removeShares(int sharesToRemove) {
         this->shares -= sharesToRemove;
     }
 }
-
-BronzeCompany::BronzeCompany(string Name, char index) : Company(Name, index) {}
-
-string BronzeCompany::getPower() const {
-    return "+ money";
-}
-
-SilverCompany::SilverCompany(string Name, char index) : Company(Name, index) {}
-
-string SilverCompany::getPower() const {
-    return "+ shares";
-}
-
-GoldCompany::GoldCompany(string Name, char index) : Company(Name, index) {}
-
-string GoldCompany::getPower() const {
-    return "+ assets";
-}

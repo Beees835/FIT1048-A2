@@ -59,22 +59,6 @@ public:
     void increaseShares(int shares);
 };
 
-class BronzeCompany : public Company {
-public:
-    BronzeCompany(string Name, char index);
-    string getPower() const override;
-};
 
-class SilverCompany : public Company {
-public:
-    SilverCompany(string Name, char index);
-    string getPower() const override;
-};
-
-class GoldCompany : public Company {
-public:
-    GoldCompany(string Name, char index);
-    string getPower() const override;
-};
 
 #endif //A2_HAO_I_LIN_PROTOTYPE_COMPANY_H

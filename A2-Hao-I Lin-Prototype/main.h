@@ -7,6 +7,11 @@
 
 #include <vector>
 #include <string>
+#include "Player.h"
+#include "Company.h"
+#include "Risk.h"
+
+enum Difficulty { Easy, Tricky, Hard };  // Enum for difficulty levels
 
 // Struct for GameSettings
 struct GameSettings {
@@ -18,18 +23,10 @@ struct GameSettings {
     int corporatePowerUses;
 };
 
-#include "Player.h"
-#include "Company.h"
-#include "Risk.h"
+
 
 class Player;
 
-// Global constants or variables prototypes
-extern std::vector<Player> players;
-extern std::vector<Risk> risks;
-extern const std::string INFO_FILE;
-
-// Function prototypes
 void init();
 void displayInterface(const GameSettings &currentSettings);
 void runGame();
@@ -44,4 +41,8 @@ void sellShares(Player& player);
 void acquireCompany(Player& player);
 void useCorporatePower(Player& player);
 void quitGame();
+void takeRisk(Player& player, Difficulty difficulty);
+void mergeCompany(Player& player);
+void testingMergeCompany(Player& player);
+
 #endif //A2_HAO_I_LIN_PROTOTYPE_MAIN_H

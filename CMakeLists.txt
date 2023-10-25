@@ -13,4 +13,11 @@ add_executable(fit1048
         "A2-Hao-I Lin-Prototype/Player.cpp"
         "A2-Hao-I Lin-Prototype/Player.h"
         "A2-Hao-I Lin-Prototype/Risk.cpp"
-        "A2-Hao-I Lin-Prototype/Risk.h")
+        "A2-Hao-I Lin-Prototype/Risk.h"
+        "A2-Hao-I Lin-Prototype/bronzeCompany.cpp"
+        "A2-Hao-I Lin-Prototype/bronzeCompany.h"
+        "A2-Hao-I Lin-Prototype/silverCompany.cpp"
+        "A2-Hao-I Lin-Prototype/silverCompany.h"
+        "A2-Hao-I Lin-Prototype/goldCompany.cpp"
+        "A2-Hao-I Lin-Prototype/goldCompany.h"
+)

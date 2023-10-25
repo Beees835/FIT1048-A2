@@ -197,5 +197,3 @@ bool Player::hasAcquiredCompany(const string &companyName) const {
 const std::set<std::string> &Player::getAcquiredCompanies() const {
     return acquiredCompanies;
 }
-
-

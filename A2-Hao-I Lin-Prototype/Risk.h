@@ -9,6 +9,8 @@ using namespace std;
 #define A2_HAO_I_LIN_PROTOTYPE_RISK_H
 
 #include <string>
+#include <vector>
+
 using namespace std;
 
 class Risk {
@@ -17,6 +19,8 @@ private:
     string effect;
     int minValue;
     int maxValue;
+
+    static vector<Risk> allRisks; // Static vector to store all risks
 
 public:
     // Constructors
@@ -40,6 +44,13 @@ public:
 
     // Test function
     static void testRisk();
+
+    // Static methods to manage all risks
+    static void loadRisksFromFile(const string& filename);
+    static void shuffleRisks();
+    static Risk getRandomRisk();
+
+    static bool areRisksLoaded();
 };
 
 
