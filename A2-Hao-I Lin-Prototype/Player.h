@@ -63,6 +63,9 @@ public:
     const std::map<std::string, std::string>& getAcquiredCompanyPowers() const;
     bool hasAcquiredCompany(const std::string& companyName) const;
     const std::set<std::string>& getAcquiredCompanies() const;
+
+    void addSharesForCompany(const string &companyName, int sharesToAdd);
+
 };
 
 #endif //A2_HAO_I_LIN_PROTOTYPE_PLAYER_H

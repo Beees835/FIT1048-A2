@@ -1,0 +1,116 @@
+vv
+100
+0
+4
+0
+2
+1
+18
+[A]ll Star Studios   
+2
+46
+46
+Nobody
++ money
+[B]ookworm Bookshops 
+1
+46
+46
+Nobody
++ shares
+[C]hocoholics Inc    
+2
+54
+54
+Nobody
++ assets
+[D]ingo Dogwash      
+4
+44
+44
+Nobody
++ money
+[E]legant Car Sales  
+3
+44
+44
+Nobody
++ shares
+[F]lash Designs Inc  
+4
+54
+54
+Nobody
++ assets
+[G]ladies Galore!    
+3
+33
+33
+Nobody
++ money
+[H]eather's Hotels   
+5
+48
+48
+Nobody
++ shares
+[I]ncredible Cakes   
+5
+58
+58
+Nobody
++ assets
+[J]umble Records     
+2
+41
+41
+Nobody
++ money
+[K]att's Krafts      
+1
+58
+58
+Nobody
++ shares
+[L]icorice Allsorts  
+3
+61
+61
+Nobody
++ assets
+[M]agic Max's Music  
+6
+36
+36
+Nobody
++ money
+[N]erk and Sons      
+3
+53
+53
+Nobody
++ shares
+[O]mnibus Travel Co  
+8
+61
+61
+Nobody
++ assets
+[P]eregrine Flights  
+6
+43
+43
+Nobody
++ money
+[Q]uark Enterprises  
+3
+40
+40
+Nobody
++ shares
+[R]usty Hinge Repairs
+9
+67
+67
+Nobody
++ assets

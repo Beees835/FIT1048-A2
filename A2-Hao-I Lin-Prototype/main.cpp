@@ -165,7 +165,7 @@ void runGame() {
     for (int day = 1; day <= currentSettings.maxDaysToPlay; ++day) {
         char userAction;
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-        cout << "         [B]uy   [S]ell   [A]cquire   [P]ower   [R]isk   [M]erge   [Q]uit          " << endl;
+        cout << "     [B]uy   [S]ell   [A]cquire   [P]ower   [R]isk   [M]erge   Sa[V]e   [Q]uit     " << endl;
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "What will you do now ? " << endl;
         cin >> userAction;
@@ -196,6 +196,9 @@ void runGame() {
             case 'M' | 'm':
                 testingMergeCompany(player);
                 displayInterface(currentSettings);
+                break;
+            case 'V' | 'v':
+                saveGameState();
                 break;
             default:
                 cout << "Invalid input!\n";
@@ -493,56 +496,6 @@ void acquireCompany(Player& player) {
     }
 }
 
-
-
-//void acquireCompany(Player& player) {
-//    // Check if the player has any power uses left
-//    if (player.getPowerUsesLeft() <= 0) {
-//        cout << "You have no power uses left." << endl;
-//        return;
-//    }
-//
-//    // Display available companies
-//    cout << "Available companies to acquire:\n";
-//    for (int i = 0; i < companies.size(); i++) {
-//        if (companies[i]->isAcquired()) {
-//            continue; // Skip already acquired companies
-//        }
-//        char companyChar = 'A' + i; // Convert index to character
-//        cout << companyChar << ". " << companies[i]->getName() << " - Cost: " << companies[i]->getCost() << " shares\n";
-//    }
-//
-//    // Get user choice
-//    char choiceChar;
-//    cout << "Acquire which company [A-" << static_cast<char>('A' + companies.size() - 1) << "]: ";
-//    cin >> choiceChar;
-//    choiceChar = toupper(choiceChar); // Convert to uppercase
-//
-//    int choice = choiceChar - 'A'; // Convert character to index
-//
-//    // Check if choice is valid
-//    if (choice < 0 || choice >= companies.size() || companies[choice]->isAcquired()) {
-//        cout << "Invalid choice! Please choose an available company in the range A-" << static_cast<char>('A' + companies.size() - 1) << "\n";
-//        return;
-//    }
-//
-//    Company* chosenCompany = companies[choice];
-//
-//    // Check if player can acquire the company
-//    if (player.getSharesOwnedForCompany(chosenCompany->getName()) < chosenCompany->getCost()) {
-//        cout << "You do not have enough shares to acquire this company." << endl;
-//        return;
-//    }
-//
-//    // Acquire the company
-//    if (player.acquireCompany(*chosenCompany)) {
-//        chosenCompany->setOwner(player.getName());
-//        cout << "You have successfully acquired " << chosenCompany->getName() << "!" << endl;
-//    } else {
-//        cout << "Failed to acquire " << chosenCompany->getName() << "." << endl;
-//    }
-//}
-
 void useCorporatePower(Player& player) {
     // Check if the player has any power uses left
     if (player.getPowerUsesLeft() <= 0) {
@@ -564,23 +517,38 @@ void useCorporatePower(Player& player) {
 
     // Get user choice
     char choice;
-    cout << "Choose a company to use its power: ";
-    cin >> choice;
-    choice = toupper(choice); // Convert to uppercase for consistency
-
-    string chosenCompanyName;
     bool validChoice = false;
-    for (const auto& companyName : acquiredCompanies) {
-        if (companyName[1] == choice) { // Check the character inside []
-            chosenCompanyName = companyName;
-            validChoice = true;
-            break;
+
+    while (!validChoice) {
+        cout << "Choose a company to use its power: ";
+        cin >> choice;
+        if (cin.fail()) {
+            cin.clear();  // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Discard invalid input
+            continue;
+        }
+
+        choice = toupper(choice); // Convert to uppercase for consistency
+
+        for (const auto& companyName : acquiredCompanies) {
+            if (companyName[1] == choice) { // Check the character inside []
+                validChoice = true;
+                break;
+            }
+        }
+
+        if (!validChoice) {
+            cout << "Invalid choice. Please choose a valid company." << endl;
         }
     }
 
-    if (!validChoice) {
-        cout << "Invalid choice. Please choose a valid company." << endl;
-        return;
+    string chosenCompanyName;
+    // Display acquired companies and companies where shares are owned
+    for (const auto& companyName : acquiredCompanies) {
+        if (companyName[1] == choice) {
+            chosenCompanyName = companyName;
+            break;
+        }
     }
 
     // Find the chosen company in the companies vector
@@ -610,12 +578,14 @@ void useCorporatePower(Player& player) {
     } else if (power == "+ shares") {
         int sharesToAdd = player.getDifficultyLevel() * multiplier;
         player.addShares(sharesToAdd);
+        player.addSharesForCompany(chosenCompanyName, sharesToAdd); // Add shares for the company
         cout << "Added " << sharesToAdd << " shares to " << chosenCompanyName << "." << endl;
     } else if (power == "+ assets") {
         double moneyToAdd = 10 * (player.getDifficultyLevel() * multiplier);
         player.setMoney(player.getMoney() + moneyToAdd);
         int sharesToAdd = player.getDifficultyLevel() * multiplier;
         player.addShares(sharesToAdd);
+        player.addSharesForCompany(chosenCompanyName, sharesToAdd); // Add shares for the company
         cout << "Added $" << moneyToAdd << " to your account and " << sharesToAdd << " shares to " << chosenCompanyName << "." << endl;
     }
 
@@ -804,6 +774,116 @@ void mergeCompany(Player& player) {
     player.addShares(opponentShares);
     cout << "Merge successful! You now have " << player.getSharesOwnedForCompany(targetCompany->getName()) << " shares in " << targetCompany->getName() << ".\n";
 }
+
+
+void saveGameState() {
+    ofstream saveFile("game_save.txt");
+    if (!saveFile) {
+        cerr << "Error: Unable to create save file." << endl;
+        return;
+    }
+
+    // Save player attributes
+    saveFile << player.getName() << "\n";
+    saveFile << player.getMoney() << "\n";
+    saveFile << player.getTotalSharesOwned() << "\n";
+    saveFile << player.getPowerUsesLeft() << "\n";
+
+    // Save acquired companies
+    const auto& acquiredCompanies = player.getAcquiredCompanies();
+    saveFile << acquiredCompanies.size() << "\n";  // Save the count of acquired companies
+    for (const auto& company : acquiredCompanies) {
+        saveFile << company << "\n";
+    }
+
+    // Save game difficulty and current day
+    saveFile << static_cast<int>(difficulty) << "\n";
+    saveFile << currentMaxDay << "\n";
+
+    // Save company attributes
+    saveFile << companies.size() << "\n";  // Save the count of companies
+    for (const auto& companyPtr : companies) {
+        saveFile << companyPtr->getName() << "\n";
+        saveFile << companyPtr->getSharePrice() << "\n";
+        saveFile << companyPtr->getShares() << "\n";
+        saveFile << companyPtr->getMaxShares() << "\n";
+        saveFile << companyPtr->getOwner() << "\n";
+        saveFile << companyPtr->getPower() << "\n";
+    }
+
+    saveFile.close();
+    cout << "Game saved successfully!" << endl;
+}
+
+//bool loadGameState() {
+//    ifstream loadFile("game_save.txt");
+//    if (!loadFile) {
+//        cerr << "Error: Unable to load save file." << endl;
+//        return false;
+//    }
+//
+//    // Load player attributes
+//    string playerName;
+//    getline(loadFile, playerName);
+//    player.setName(playerName);
+//
+//    double money;
+//    loadFile >> money;
+//    player.setMoney(money);
+//
+//    int shares;
+//    loadFile >> shares;
+//    player.setTotalSharesOwned(shares);
+//
+//    int powerUses;
+//    loadFile >> powerUses;
+//    player.setPowerUsesLeft(powerUses);
+//
+//    // Load acquired companies
+//    int acquiredCompaniesCount;
+//    loadFile >> acquiredCompaniesCount;
+//    for (int i = 0; i < acquiredCompaniesCount; i++) {
+//        string companyName;
+//        getline(loadFile, companyName);
+//        player.acquireCompanyDirectly(companyName);  // A method to directly set a company as acquired without checks
+//    }
+//
+//    // Load game difficulty and current day
+//    int diff;
+//    loadFile >> diff;
+//    difficulty = static_cast<Difficulty>(diff);
+//    loadFile >> currentMaxDay;
+//
+//    // Load company attributes
+//    int companyCount;
+//    loadFile >> companyCount;
+//    for (int i = 0; i < companyCount; i++) {
+//        string name, owner, power;
+//        double sharePrice;
+//        int shares, maxShares;
+//
+//        getline(loadFile, name);
+//        loadFile >> sharePrice;
+//        loadFile >> shares;
+//        loadFile >> maxShares;
+//        getline(loadFile, owner);
+//        getline(loadFile, power);
+//
+//        Company* loadedCompany = new Company(name);
+//        loadedCompany->setSharePrice(sharePrice);
+//        loadedCompany->setShares(shares);
+//        loadedCompany->setMaxShares(maxShares);
+//        loadedCompany->setOwner(owner);
+//        loadedCompany->setPower(power);
+//
+//        companies.push_back(loadedCompany);
+//    }
+//
+//    loadFile.close();
+//    cout << "Game loaded successfully!" << endl;
+//    return true;
+//}
+
 
 ////////////////////////////
 // Helper functions below //

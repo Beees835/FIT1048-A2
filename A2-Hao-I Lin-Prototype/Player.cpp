@@ -197,3 +197,8 @@ bool Player::hasAcquiredCompany(const string &companyName) const {
 const std::set<std::string> &Player::getAcquiredCompanies() const {
     return acquiredCompanies;
 }
+
+void Player::addSharesForCompany(const std::string &companyName, int sharesToAdd) {
+    sharesOwnedByPlayer[companyName] += sharesToAdd;
+}
+
