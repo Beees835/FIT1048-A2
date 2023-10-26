@@ -45,7 +45,7 @@ public:
 
     // Mutators
     void setName(string name);
-    void setDifficultyLevel(Difficulty difficulty);  // Changed setMode() to setDifficultyLevel() and parameter type to Difficulty
+    void setDifficultyLevel(Difficulty difficulty);
     void setMoney(double money);
     void setTotalSharesOwned(int shares);
     void setTotalCompaniesOwned(int companies);
@@ -63,9 +63,7 @@ public:
     const std::map<std::string, std::string>& getAcquiredCompanyPowers() const;
     bool hasAcquiredCompany(const std::string& companyName) const;
     const std::set<std::string>& getAcquiredCompanies() const;
-
     void addSharesForCompany(const string &companyName, int sharesToAdd);
-
+    void acquireCompanyDirectly(const string& companyName);
 };
-
 #endif //A2_HAO_I_LIN_PROTOTYPE_PLAYER_H

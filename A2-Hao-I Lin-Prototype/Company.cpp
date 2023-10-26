@@ -9,8 +9,6 @@
 using namespace std;
 
 // Default constructor for Company
-// Default constructor for Company
-
 Company::Company(string Name, int idx) : name(Name), owner("Nobody"), index(idx), acquired(false) {
     switch (index) {
         case 1:
@@ -66,7 +64,7 @@ void Company::setLevel(int level) { this->level = level; }
 void Company::setShares(int shares) { this->shares = shares; }
 void Company::setMaxShares(int maxShares) { this->maxShares = maxShares; }
 void Company::setSharePrice(int price) { sharePrice = price; }
-// Inside the Company class:
+
 
 // setAcquired method to set the acquired status of the company
 // also update shares when the company is acquired
@@ -92,4 +90,8 @@ void Company::removeShares(int sharesToRemove) {
         cout << "shares to remove" << sharesToRemove << endl;
         this->shares -= sharesToRemove;
     }
+}
+
+void Company::updateSharePrice() {
+    this->sharePrice = rand() % (this->level + 4) + 1; // Random value between 1 and (level + 4)
 }

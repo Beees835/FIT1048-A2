@@ -45,5 +45,8 @@ void takeRisk(Player& player, Difficulty difficulty);
 void mergeCompany(Player& player);
 void testingMergeCompany(Player& player);
 void saveGameState();
+bool loadGameState();
+void initializeLoadedGameState();
+void loadCompanyDetail();
 
 #endif //A2_HAO_I_LIN_PROTOTYPE_MAIN_H

@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 #include <limits>
 #include <iomanip>
@@ -66,6 +67,28 @@ void testingMergeCompany(Player& player) {
     cout << "Merge successful! You now have " << player.getSharesOwnedForCompany(targetCompany->getName()) << " shares in " << targetCompany->getName() << ".\n";
 }
 
+void initializeLoadedGameState() {
+    // Check if any companies were acquired and update their status
+    for (auto& companyPtr : companies) {
+        string companyName = companyPtr->getName();
+
+        // Update the company's status if it has been acquired by the player
+        if (player.hasAcquiredCompany(companyName)) {
+            companyPtr->setAcquired(true); // Mark the company as acquired
+            companyPtr->setOwner(player.getName()); // Set the player as the owner
+        } else {
+            companyPtr->setAcquired(false); // Mark the company as not acquired
+            companyPtr->setOwner("Nobody"); // Reset owner if the player doesn't own the company
+        }
+
+        // Adjust available shares based on player's ownership
+        int sharesOwned = player.getSharesOwnedForCompany(companyName);
+        if (sharesOwned > 0) {
+            companyPtr->removeShares(sharesOwned);
+        }
+    }
+}
+
 
 const GameSettings difficultySettings[] = {
         {4, 12, 3, 500, 40, 6},  // Easy
@@ -90,6 +113,24 @@ int main() {
 void init() {
     displayGameIntro("RBintro.txt");
     Risk::loadRisksFromFile("riskAdvanced.txt");
+
+    ifstream checkSave("game_save.txt");
+    if (checkSave) {
+        checkSave.close(); // Close the file after checking its existence
+        char choice;
+        cout << "A saved game has been detected. Do you want to load it? (Y/N): ";
+        cin >> choice;
+        if (choice == 'Y' || choice == 'y') {
+            if (loadGameState()) {
+                initializeLoadedGameState();
+                loadCompanyDetail();
+                return;
+            } else {
+                cout << "Failed to load the game. Starting a new game." << endl;
+            }
+        }
+    }
+
     // Get difficulty level
     int choice;
     do {
@@ -111,7 +152,10 @@ void init() {
     cout << "Enter your name: ";
     cin >> name;
     player = Player(name, difficulty);
+    loadCompanyDetail();
+}
 
+void loadCompanyDetail() {
     // Open the companies.txt file for reading
     ifstream file("companies.txt");
     if (file.is_open()) {
@@ -192,6 +236,7 @@ void runGame() {
                 break;
             case 'Q' | 'q':
                 quitGame();
+                displayInterface(currentSettings);
                 break;
             case 'M' | 'm':
                 testingMergeCompany(player);
@@ -199,6 +244,7 @@ void runGame() {
                 break;
             case 'V' | 'v':
                 saveGameState();
+                displayInterface(currentSettings);
                 break;
             default:
                 cout << "Invalid input!\n";
@@ -216,7 +262,6 @@ void displayInterface(const GameSettings& currentSettings) {
        << " Min Money: $" << currentSettings.minMoneyToWin << " Day " << currentMaxDay << "                ";
     cout << os.str() << endl;
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-
     displayCompanyDetail();
     displayPlayerPortfolio(player);
 }
@@ -285,6 +330,11 @@ void displayGameIntro(const std::string& filename) {
 }
 
 void displayCompanyDetail() {
+    // update the company share prices after player finished action
+    for (auto& company : companies) {
+        company->updateSharePrice();
+    }
+
     // Displaying the headers in two lines
     cout << setw(30) << left << "Company Name"
          << setw(15) << "Available"
@@ -300,6 +350,7 @@ void displayCompanyDetail() {
 
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 
+    // Display all companies, not just the ones owned by the player
     for (const auto& companyPtr : companies) {
         cout << setw(30) << left << companyPtr->getName()
              << setw(15) << companyPtr->getShares()
@@ -308,6 +359,7 @@ void displayCompanyDetail() {
              << setw(10) << companyPtr->getOwner() << endl;
     }
 }
+
 
 void buyShares(Player& player) {
     bool stillBuying = true;
@@ -762,7 +814,7 @@ void mergeCompany(Player& player) {
     // The player initiating the merge must pay the opponent the current value of the shares.
     double totalCost = targetCompany->getSharePrice() * player.getSharesOwnedForCompany(targetCompany->getName());
     if (player.getMoney() < totalCost) {
-        cout << "You can't afford the merger.\n";
+        cout << "You can't afford the merge.\n";
         return;
     }
 
@@ -777,112 +829,99 @@ void mergeCompany(Player& player) {
 
 
 void saveGameState() {
-    ofstream saveFile("game_save.txt");
-    if (!saveFile) {
-        cerr << "Error: Unable to create save file." << endl;
+    ofstream outFile("game_save.txt");
+    if (!outFile) {
+        cout << "Error: Unable to save the game." << endl;
         return;
+    } else {
+        cout << "Game saved successfully." << endl;
     }
 
-    // Save player attributes
-    saveFile << player.getName() << "\n";
-    saveFile << player.getMoney() << "\n";
-    saveFile << player.getTotalSharesOwned() << "\n";
-    saveFile << player.getPowerUsesLeft() << "\n";
+    // Saving player data
+    outFile << player.getName() << "\n";
+    outFile << player.getTotalSharesOwned() << " "
+            << player.getMoney() << " "
+            << player.getPowerUsesLeft() << "\n";
 
-    // Save acquired companies
-    const auto& acquiredCompanies = player.getAcquiredCompanies();
-    saveFile << acquiredCompanies.size() << "\n";  // Save the count of acquired companies
-    for (const auto& company : acquiredCompanies) {
-        saveFile << company << "\n";
-    }
-
-    // Save game difficulty and current day
-    saveFile << static_cast<int>(difficulty) << "\n";
-    saveFile << currentMaxDay << "\n";
-
-    // Save company attributes
-    saveFile << companies.size() << "\n";  // Save the count of companies
+    // Saving companies data
     for (const auto& companyPtr : companies) {
-        saveFile << companyPtr->getName() << "\n";
-        saveFile << companyPtr->getSharePrice() << "\n";
-        saveFile << companyPtr->getShares() << "\n";
-        saveFile << companyPtr->getMaxShares() << "\n";
-        saveFile << companyPtr->getOwner() << "\n";
-        saveFile << companyPtr->getPower() << "\n";
+        int sharesOwnedByPlayer = player.getSharesOwnedForCompany(companyPtr->getName());
+
+        outFile << companyPtr->getName() << "\n"
+                << companyPtr->getSharePrice() << " "
+                << companyPtr->getShares() << " "
+                << sharesOwnedByPlayer << " "
+                << companyPtr->getOwner() << "\n"
+                << companyPtr->getPower() << "\n";
     }
 
-    saveFile.close();
-    cout << "Game saved successfully!" << endl;
+    // Saving shares owned by player
+    for (const auto& companyPtr : companies) {
+        int sharesOwnedByPlayer = player.getSharesOwnedForCompany(companyPtr->getName());
+        if (sharesOwnedByPlayer > 0) {
+            outFile << companyPtr->getName() << " " << sharesOwnedByPlayer << "\n";
+        }
+    }
+
+    outFile.close();
 }
 
-//bool loadGameState() {
-//    ifstream loadFile("game_save.txt");
-//    if (!loadFile) {
-//        cerr << "Error: Unable to load save file." << endl;
-//        return false;
-//    }
-//
-//    // Load player attributes
-//    string playerName;
-//    getline(loadFile, playerName);
-//    player.setName(playerName);
-//
-//    double money;
-//    loadFile >> money;
-//    player.setMoney(money);
-//
-//    int shares;
-//    loadFile >> shares;
-//    player.setTotalSharesOwned(shares);
-//
-//    int powerUses;
-//    loadFile >> powerUses;
-//    player.setPowerUsesLeft(powerUses);
-//
-//    // Load acquired companies
-//    int acquiredCompaniesCount;
-//    loadFile >> acquiredCompaniesCount;
-//    for (int i = 0; i < acquiredCompaniesCount; i++) {
-//        string companyName;
-//        getline(loadFile, companyName);
-//        player.acquireCompanyDirectly(companyName);  // A method to directly set a company as acquired without checks
-//    }
-//
-//    // Load game difficulty and current day
-//    int diff;
-//    loadFile >> diff;
-//    difficulty = static_cast<Difficulty>(diff);
-//    loadFile >> currentMaxDay;
-//
-//    // Load company attributes
-//    int companyCount;
-//    loadFile >> companyCount;
-//    for (int i = 0; i < companyCount; i++) {
-//        string name, owner, power;
-//        double sharePrice;
-//        int shares, maxShares;
-//
-//        getline(loadFile, name);
-//        loadFile >> sharePrice;
-//        loadFile >> shares;
-//        loadFile >> maxShares;
-//        getline(loadFile, owner);
-//        getline(loadFile, power);
-//
-//        Company* loadedCompany = new Company(name);
-//        loadedCompany->setSharePrice(sharePrice);
-//        loadedCompany->setShares(shares);
-//        loadedCompany->setMaxShares(maxShares);
-//        loadedCompany->setOwner(owner);
-//        loadedCompany->setPower(power);
-//
-//        companies.push_back(loadedCompany);
-//    }
-//
-//    loadFile.close();
-//    cout << "Game loaded successfully!" << endl;
-//    return true;
-//}
+bool loadGameState() {
+    ifstream inFile("game_save.txt");
+    if (!inFile) {
+        cout << "Error: Unable to load the game." << endl;
+        return false;
+    }
+
+    // Loading player data
+    string playerName;
+    getline(inFile, playerName);
+    player.setName(playerName);
+
+    int totalShares, powerUses;
+    double money;
+    inFile >> totalShares >> money >> powerUses;
+    player.setTotalSharesOwned(totalShares);
+    player.setMoney(money);
+    player.setPowerUsesLeft(powerUses);
+
+    // Loading companies data
+    for (auto& companyPtr : companies) {
+        string companyName, owner, power;
+        int sharePrice, availableShares, playerShares;
+
+        inFile.ignore();
+        getline(inFile, companyName);
+        inFile >> sharePrice >> availableShares >> playerShares;
+        inFile.ignore();
+        getline(inFile, owner);
+        getline(inFile, power);
+
+        companyPtr->setName(companyName);
+        companyPtr->setSharePrice(sharePrice);
+        companyPtr->setShares(availableShares);
+        companyPtr->setOwner(owner);
+        companyPtr->setPower(power);
+
+        if (playerShares > 0) {
+            player.addSharesForCompany(companyName, playerShares);
+        }
+    }
+
+    // Setting shares owned by player
+    while (inFile) {
+        string companyName;
+        int shares;
+        inFile >> companyName >> shares;
+        if (!companyName.empty()) {
+            player.addSharesForCompany(companyName, shares);
+        }
+    }
+
+    inFile.close();
+    return true;
+}
+
 
 
 ////////////////////////////

@@ -57,6 +57,7 @@ public:
     void removeShares(int sharesToRemove);
     void addShares(int sharesToAdd);
     void increaseShares(int shares);
+    void updateSharePrice();
 };
 
 

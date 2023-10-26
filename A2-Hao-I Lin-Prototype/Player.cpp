@@ -202,3 +202,10 @@ void Player::addSharesForCompany(const std::string &companyName, int sharesToAdd
     sharesOwnedByPlayer[companyName] += sharesToAdd;
 }
 
+void Player::acquireCompanyDirectly(const string& companyName) {
+    // Mark the company as acquired
+    acquiredCompanies.insert(companyName);
+
+    // Increase the total companies owned by the player
+    totalCompaniesOwned++;
+}
